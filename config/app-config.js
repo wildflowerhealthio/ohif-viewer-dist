@@ -38,10 +38,9 @@
         sourceName: 'fhir',
         configuration: {
           friendlyName: 'FHIR R4 server (SMART on FHIR)',
-          // No server baked in: `?iss=` names it. The client ID is the name
-          // this viewer registers under; `?client_id=` or the SMART
-          // Preferences panel override it per launch or per user.
-          smartClientId: 'ohif-viewer',
+          // No server and no client ID baked in: `?iss=` names the server,
+          // `?client_id=` or the SMART Preferences panel supplies the client.
+          smartClientId: '',
         },
       },
     ],
