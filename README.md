@@ -41,7 +41,8 @@ Steps, in order:
 3. Register the extension and mode in `pluginConfig.json`.
 4. Copy `config/app-config.js` in as the build's `APP_CONFIG` and run OHIF's
    production build.
-5. Write `out/ohif-viewer.tar.gz`, its `.sha256`, and `out/site/`.
+5. Drop the source maps (about 100 MB of the build), then write
+   `out/ohif-viewer.tar.gz`, its `.sha256`, and `out/site/`.
 
 ## Running it locally
 

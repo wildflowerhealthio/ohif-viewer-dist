@@ -119,6 +119,16 @@ if (!bundled) {
 }
 
 log('Packaging')
+// Source maps are ~100 MB of a ~220 MB dist and nothing a deployment serves
+// on purpose; drop them so the release and the Pages site stay lean.
+const removeSourceMaps = (dir) => {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const entryPath = join(dir, entry.name)
+    if (entry.isDirectory()) removeSourceMaps(entryPath)
+    else if (entry.name.endsWith('.map')) rmSync(entryPath)
+  }
+}
+removeSourceMaps(distDir)
 rmSync(outDir, { recursive: true, force: true })
 mkdirSync(join(outDir, 'site'), { recursive: true })
 cpSync(distDir, join(outDir, 'site'), { recursive: true })
