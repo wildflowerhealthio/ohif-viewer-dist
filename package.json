@@ -1,0 +1,14 @@
+{
+  "name": "ohif-viewer-dist",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Builds the OHIF Viewer with the FHIR viewer mode and publishes it as a release and a GitHub Pages site",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "npx --yes serve out/site"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

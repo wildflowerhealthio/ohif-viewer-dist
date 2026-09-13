@@ -1,0 +1,12 @@
+{
+  "$comment": "The two source trees every build starts from, pinned by commit. scripts/build.mjs fetches exactly these; bump them here and let the workflow publish the result.",
+  "viewers": {
+    "repo": "https://github.com/OHIF/Viewers",
+    "commit": "2f2d015a87b32f049840ceb1dc300c5ebb3a540b"
+  },
+  "fhirViewer": {
+    "repo": "https://github.com/node-on-fhir/ohif-fhir-viewer",
+    "commit": "0935326fcc1eac519929734b061b5a6d645409b1"
+  },
+  "pnpm": "11.5.2"
+}
