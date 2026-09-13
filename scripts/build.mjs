@@ -13,7 +13,15 @@
 // commands, and PUBLIC_URL is `./` so the bundle serves from any path.
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -88,6 +96,26 @@ pnpm(appDir, ['run', 'build'], {
 const distDir = join(appDir, 'dist')
 if (!existsSync(join(distDir, 'index.html'))) {
   throw new Error(`OHIF build produced no index.html in ${distDir}`)
+}
+
+// A build that silently dropped the plugins would still succeed above, so
+// prove they went in: the generated plugin manifest must register both, and
+// the extension's id must appear in the emitted JavaScript.
+log('Checking the FHIR viewer plugins made it into the bundle')
+const pluginImports = readFileSync(join(appDir, 'src', 'pluginImports.js'), 'utf8')
+for (const line of [
+  `extensions.push("${extensionPackage.name}")`,
+  `modes.push("${modePackage.name}")`,
+]) {
+  if (!pluginImports.includes(line)) {
+    throw new Error(`pluginImports.js does not register the plugin: expected ${line}`)
+  }
+}
+const bundled = readdirSync(distDir)
+  .filter((name) => name.endsWith('.js'))
+  .some((name) => readFileSync(join(distDir, name), 'utf8').includes(extensionPackage.name))
+if (!bundled) {
+  throw new Error(`No emitted script in ${distDir} mentions ${extensionPackage.name}`)
 }
 
 log('Packaging')
