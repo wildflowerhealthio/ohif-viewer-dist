@@ -14,6 +14,28 @@
     basename = pathname.slice(0, pathname.lastIndexOf('/') + 1)
   }
 
+  // SPA redirect: if we arrived via a 404.html redirect (this repo's own or
+  // a parent project's), restore the original route so the router picks it up.
+  var params = new URLSearchParams(window.location.search)
+  var redirectPath = params.get('redirect')
+  if (redirectPath) {
+    params.delete('redirect')
+    // Strip the basename prefix when the redirect value is an absolute path
+    // that includes it (a parent project's 404.html may pass the full path).
+    if (redirectPath.indexOf(basename) === 0) {
+      redirectPath = redirectPath.slice(basename.length)
+    }
+    // Ensure a single leading slash for the route portion.
+    redirectPath = redirectPath.replace(/^\/+/, '/')
+    var remaining = params.toString()
+    var target = basename + redirectPath.replace(/^\//, '')
+    window.history.replaceState(
+      null,
+      '',
+      target + (remaining ? '?' + remaining : '') + window.location.hash
+    )
+  }
+
   window.config = {
     name: 'ohif-viewer-dist/app-config.js',
     routerBasename: basename,
