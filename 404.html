@@ -4,23 +4,38 @@
     <meta charset="utf-8" />
     <title>Redirecting&hellip;</title>
     <script>
-      // GitHub Pages SPA redirect: rewrites the URL so that the SPA's
-      // index.html can pick up the original route from the `redirect`
-      // query parameter and complete the navigation client-side.
-      //
-      // segmentsToKeep: number of leading path segments that form the
-      // deployment base URL.  1 for a GitHub Pages project site
-      // (username.github.io/repo-name), 0 for a user/org site.
-      var segmentsToKeep = 1;
-      var loc = window.location;
-      var allSegments = loc.pathname.split('/').filter(Boolean);
-      var base = segmentsToKeep
-        ? '/' + allSegments.slice(0, segmentsToKeep).join('/') + '/'
-        : '/';
-      var spaPath = '/' + allSegments.slice(segmentsToKeep).join('/');
-      var params = new URLSearchParams(loc.search);
-      params.set('redirect', spaPath);
-      loc.replace(base + '?' + params.toString() + loc.hash);
+      // GitHub Pages SPA redirect.  Probes for the deepest ancestor path
+      // that serves an index.html and redirects there, passing the leftover
+      // route as ?redirect= so the SPA can complete the navigation
+      // client-side.  Works for both a standalone single-SPA Pages site and
+      // a multi-SPA host where each app lives in its own sub-directory.
+      ;(async function () {
+        var loc = window.location
+        var segments = loc.pathname.split('/').filter(Boolean)
+        if (!segments.length) return
+
+        function probe(depth) {
+          var base = depth ? '/' + segments.slice(0, depth).join('/') + '/' : '/'
+          return fetch(base + 'index.html', { method: 'HEAD' })
+            .then(function (r) { return r.ok ? { base: base, depth: depth } : null })
+            .catch(function () { return null })
+        }
+
+        // Probe every candidate ancestor in parallel; pick the deepest match.
+        var probes = []
+        for (var i = segments.length - 1; i >= 0; i--) probes.push(probe(i))
+        var results = await Promise.all(probes)
+
+        for (var j = 0; j < results.length; j++) {
+          if (!results[j]) continue
+          var spaPath = '/' + segments.slice(results[j].depth).join('/')
+          if (spaPath === '/') break
+          var params = new URLSearchParams(loc.search)
+          params.set('redirect', spaPath)
+          loc.replace(results[j].base + '?' + params.toString() + loc.hash)
+          return
+        }
+      })()
     </script>
   </head>
   <body></body>
