@@ -135,6 +135,7 @@ cpSync(distDir, join(outDir, 'site'), { recursive: true })
 // GitHub Pages runs Jekyll unless told not to; OHIF's dist has no underscore
 // paths today, but the marker costs nothing and guards against one appearing.
 writeFileSync(join(outDir, 'site', '.nojekyll'), '')
+cpSync(join(repoRoot, '404.html'), join(outDir, 'site', '404.html'))
 const archivePath = join(outDir, 'ohif-viewer.tar.gz')
 run('tar', ['-czf', archivePath, '-C', distDir, '.'])
 const digest = createHash('sha256').update(readFileSync(archivePath)).digest('hex')

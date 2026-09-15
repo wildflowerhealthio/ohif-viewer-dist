@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting&hellip;</title>
+    <script>
+      // GitHub Pages SPA redirect: rewrites the URL so that the SPA's
+      // index.html can pick up the original route from the `redirect`
+      // query parameter and complete the navigation client-side.
+      //
+      // segmentsToKeep: number of leading path segments that form the
+      // deployment base URL.  1 for a GitHub Pages project site
+      // (username.github.io/repo-name), 0 for a user/org site.
+      var segmentsToKeep = 1;
+      var loc = window.location;
+      var allSegments = loc.pathname.split('/').filter(Boolean);
+      var base = segmentsToKeep
+        ? '/' + allSegments.slice(0, segmentsToKeep).join('/') + '/'
+        : '/';
+      var spaPath = '/' + allSegments.slice(segmentsToKeep).join('/');
+      var params = new URLSearchParams(loc.search);
+      params.set('redirect', spaPath);
+      loc.replace(base + '?' + params.toString() + loc.hash);
+    </script>
+  </head>
+  <body></body>
+</html>
